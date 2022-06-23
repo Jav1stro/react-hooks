@@ -14,6 +14,7 @@ export const CharacterItem = styled.div`
   width: 200px;
   height: 100px;
   color: tomato;
+  background-color: #ff000036;
 `;
 export const CharactersFavorites = styled.div`
   margin: 20px;
@@ -24,4 +25,5 @@ export const CharactersFavorites = styled.div`
   justify-content: center;
   text-align: center;
   flex-wrap: wrap;
+  background : #0a6b4b50;
 `;

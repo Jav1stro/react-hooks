@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useReducer, useMemo, useRef } from "react";
-import {
-  CharactersContainer,
-  CharacterItem,
-  CharactersFavorites,
-} from "./styles.characters";
+import React, { useState , useReducer , useMemo , useRef , useCallback } from "react";
+import { CharactersContainer, CharacterItem, CharactersFavorites } from "./styles.characters";
+import Search from '../Search'
+import useCharacters from "../../Hooks/useCharacters";
+
+const API ='https://www.breakingbadapi.com/api/characters?limit=10&offset=0';
 
 const initialState = {
   favorites: [],
@@ -22,46 +22,53 @@ const favoriteReducer = (state, action) => {
 };
 
 const Characters = () => {
-  const [characters, setCharacters] = useState([]);
   const [favorites, dispatch] = useReducer(favoriteReducer, initialState);
   const [search, setSearch] = useState("");
+  const searchInput = useRef(null);
 
-  useEffect(() => {
-    fetch("https://www.breakingbadapi.com/api/characters?limit=10&offset=0")
-      .then((resp) => resp.json())
-      .then((data) => setCharacters(data));
-  }, []);
+  const characters = useCharacters(API)
 
+  //handleClick usando reducer
   const handleClick = (favorite) =>
     dispatch({
       type: "ADD_TO_FAVORITE",
       payload: favorite,
     });
 
-  const handleSearch = (event) => {
-    setSearch(event.target.value);
-  };
-  // const filteredUsers = characters.filter((user)=>{
-  //   return user.name.toLowerCase().includes(search.toLowerCase())
-  // })
+//buscador
+  // const handleSearch = () => {
+  //   setSearch(searchInput.current.value);
+  // };
+  //BUSCADOR  CON USE CALLBACK
+  const handleSearch = useCallback(()=>{
+    setSearch(searchInput.current.value)
+  },[]);
 
-  const filteredUsers = useMemo(()=>
-    characters.filter((user)=>{
-        return user.name.toLowerCase().includes(search.toLowerCase())
+
+  // const filteredUsers = characters.filter((user)=>{
+    //   return user.name.toLowerCase().includes(search.toLowerCase())
+    // })
+    //Ambos códigos hacen lo mismo, el segundo usando useMemo.
+  const filteredUsers = useMemo(
+    () =>
+      characters.filter((user) => {
+        return user.name.toLowerCase().includes(search.toLowerCase());
       }),
-      [characters, search]
-  )
+    [characters, search]
+  );
 
   return (
     <>
       <CharactersFavorites>
+        <h3>
+          <em>Personajes favoritos </em>
+        </h3>
         {favorites.favorites.map((favorite) => (
           <ol key={favorite.id}>{favorite.name}</ol>
         ))}
       </CharactersFavorites>
 
-          <input type="text" value={search} onChange={handleSearch} />
-
+      <Search search={search} searchInput={searchInput} handleSearch={handleSearch}/>
 
       <CharactersContainer>
         {filteredUsers.map((character) => (
